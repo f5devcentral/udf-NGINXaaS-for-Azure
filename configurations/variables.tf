@@ -1,7 +1,7 @@
-variable "location" {
-  description = "Azure location name for NGINXaaS deployment."
-  default     = "eastus2"
-}
+# variable "location" {
+#   description = "Azure location name for NGINXaaS deployment."
+#   default     = "eastus2"
+# }
 
 variable "name" {
   description = "Name of NGINXaaS deployment and related resources."
@@ -19,4 +19,8 @@ variable "tags" {
   default = {
     env = "Production"
   }
+}
+
+variable "resource_group_name" {
+  description = "Name of resource group"
 }

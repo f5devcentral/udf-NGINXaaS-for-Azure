@@ -10,36 +10,45 @@ terraform {
 
 provider "azurerm" {
   features {}
+  skip_provider_registration = true
 }
 
-module "prerequisites" {
-  source   = "../prerequisites"
-  location = var.location
-  name     = var.name
-  tags     = var.tags
+# module "prerequisites" {
+#   source   = "../prerequisites"
+#   location = var.location
+#   name     = var.name
+#   tags     = var.tags
+# }
+
+module "deployment" {
+  source  = "../deployments/create-or-update"
+  name    = var.name
+  tags    = var.tags
+  sku     = var.sku
+  resource_group_name = var.resource_group_name
 }
 
-resource "azurerm_nginx_deployment" "example" {
-  name                     = var.name
-  resource_group_name      = module.prerequisites.resource_group_name
-  sku                      = var.sku
-  location                 = var.location
-  diagnose_support_enabled = false
+# resource "azurerm_nginx_deployment" "example" {
+#   name                     = var.name
+#   resource_group_name      = module.prerequisites.resource_group_name
+#   sku                      = var.sku
+#   location                 = var.location
+#   diagnose_support_enabled = false
 
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [module.prerequisites.managed_identity_id]
-  }
+#   identity {
+#     type         = "UserAssigned"
+#     identity_ids = [module.prerequisites.managed_identity_id]
+#   }
 
-  frontend_public {
-    ip_address = [module.prerequisites.public_ip_address_id]
-  }
-  network_interface {
-    subnet_id = module.prerequisites.subnet_id
-  }
+#   frontend_public {
+#     ip_address = [module.prerequisites.public_ip_address_id]
+#   }
+#   network_interface {
+#     subnet_id = module.prerequisites.subnet_id
+#   }
 
-  tags = var.tags
-}
+#   tags = var.tags
+# }
 
 resource "azurerm_nginx_configuration" "example" {
   nginx_deployment_id = azurerm_nginx_deployment.example.id
