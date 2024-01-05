@@ -23,9 +23,9 @@ module "prerequisites" {
 
 resource "azurerm_nginx_deployment" "example" {
   name                     = var.name
-  resource_group_name      = module.prerequisites.data.azure_rm_resource_group.example.name
+  resource_group_name      = var.resource_group_name
   sku                      = var.sku
-  location                 = module.prerequisites.data.azure_rm_resource_group.example.location
+  location                 = module.prerequisites.location
   capacity                 = 50
   diagnose_support_enabled = true
 
