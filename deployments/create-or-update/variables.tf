@@ -1,6 +1,6 @@
 variable "location" {
   description = "Azure location name for NGINXaaS deployment."
-  default     = "eastus2"
+  default     = "westus2"
 }
 
 variable "name" {
@@ -11,6 +11,10 @@ variable "name" {
 variable "sku" {
   description = "SKU of NGINXaaS deployment."
   default     = "standard_Monthly"
+}
+
+variable "resource_group_name" {
+  description = "Name of resource group"
 }
 
 variable "tags" {

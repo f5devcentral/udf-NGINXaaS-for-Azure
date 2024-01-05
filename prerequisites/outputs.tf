@@ -1,6 +1,6 @@
 output "resource_group_name" {
   description = "Name of the resource group."
-  value       = azurerm_resource_group.example.name
+  value       = data.azurerm_resource_group.example.name
 }
 
 output "managed_identity_id" {

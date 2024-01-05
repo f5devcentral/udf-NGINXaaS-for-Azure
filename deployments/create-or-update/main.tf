@@ -10,6 +10,7 @@ terraform {
 
 provider "azurerm" {
   features {}
+  skip_provider_registration = true
 }
 
 module "prerequisites" {
@@ -17,6 +18,7 @@ module "prerequisites" {
   location = var.location
   name     = var.name
   tags     = var.tags
+  resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_nginx_deployment" "example" {
