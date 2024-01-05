@@ -1,7 +1,7 @@
-variable "location" {
-  description = "Azure location name for NGINXaaS deployment."
-  default     = "westus2"
-}
+# variable "location" {
+#   description = "Azure location name for NGINXaaS deployment."
+#   default     = "westus2"
+# }
 
 variable "name" {
   description = "Name of NGINXaaS deployment and related resources."
