@@ -19,8 +19,24 @@ module "deployments" {
   resource_group_name = var.resource_group_name
 }
 
-module "cofigurations" {
-  source = "./configurations"
-  deployment_id = module.deployments.deployment_id
-  configure = var.configure
+# module "cofigurations" {
+#   source = "./configurations"
+#   deployment_id = module.deployments.deployment_id
+#   configure = var.configure
+# }
+
+resource "azurerm_nginx_configuration" "example" {
+  count = var.configure ? 1 : 0
+  nginx_deployment_id = module.deployments.deployment_id
+  root_file           = "/etc/nginx/nginx.conf"
+
+  config_file {
+    content      = filebase64("${path.module}/nginx.conf")
+    virtual_path = "/etc/nginx/nginx.conf"
+  }
+
+  config_file {
+    content      = filebase64("${path.module}/api.conf")
+    virtual_path = "/etc/nginx/site/api.conf"
+  }
 }

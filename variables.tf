@@ -20,6 +20,6 @@ variable "tags" {
   }
 }
 variable "configure" {
-  description "Workaround for Bug ID-891. Set false to skip configuration."
+  description = "Workaround for Bug ID-891. Set false to skip configuration."
   default = true
 }
