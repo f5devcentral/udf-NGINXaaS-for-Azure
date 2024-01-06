@@ -1,13 +1,13 @@
 module "prerequisites" {
-  source   = "../../prerequisites"
+  source   = "./prerequisites"
   #location = var.location
   name     = var.name
   tags     = var.tags
   resource_group_name = var.resource_group_name
 }
 
-module "deployment" {
-  source  = "../deployments/create-or-update"
+module "deployments" {
+  source  = "./deployments/create-or-update"
   name    = var.name
   tags    = var.tags
   sku      = var.sku
