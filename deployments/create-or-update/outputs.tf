@@ -8,7 +8,3 @@ output "ip_address" {
   value       = azurerm_nginx_deployment.example.ip_address
 }
 
-output "nginx_resource" {
-  description = "The whole resource"
-  value	      = azurerm_nginx_deployment.example
-}

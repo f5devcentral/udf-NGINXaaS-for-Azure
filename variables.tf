@@ -19,3 +19,7 @@ variable "tags" {
     env = "Production"
   }
 }
+variable "configure" {
+  description "Workaround for Bug ID-891. Set false to skip configuration."
+  default = true
+}

@@ -18,3 +18,9 @@ module "deployments" {
   location = module.prerequisites.location
   resource_group_name = var.resource_group_name
 }
+
+module "cofigurations" {
+  source = "./configurations"
+  deployment_id = module.deployments.deployment_id
+  configure = var.configure
+}
