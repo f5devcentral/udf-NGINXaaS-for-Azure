@@ -18,6 +18,6 @@ else
 fi
 
 echo "Importing default NGINXaaS configuration into $TF_COMMAND  state..."
-$TF_COMMAND import azurerm_nginx_configuration.example[0] $($TF_COMMAND output -raw nginx_default_config_id)
+$TF_COMMAND import module.configurations.azurerm_nginx_configuration.example[0] $($TF_COMMAND output -raw nginx_default_config_id)
 
 echo "Re-run $TF_COMMAND apply to apply the new configuration"
