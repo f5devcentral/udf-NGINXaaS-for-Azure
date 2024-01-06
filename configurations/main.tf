@@ -20,7 +20,7 @@ provider "azurerm" {
 #   tags     = var.tags
 # }
 
-module "deployment" {
+module "deployments" {
   source  = "../deployments/create-or-update"
   name    = var.name
   tags    = var.tags
@@ -51,7 +51,7 @@ module "deployment" {
 # }
 
 resource "azurerm_nginx_configuration" "example" {
-  nginx_deployment_id = azurerm_nginx_deployment.example.id
+  nginx_deployment_id = module.deployments.deployment_id
   root_file           = "/etc/nginx/nginx.conf"
 
   config_file {
