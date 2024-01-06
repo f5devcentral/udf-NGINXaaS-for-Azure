@@ -1,17 +1,17 @@
-terraform {
-  required_version = "~> 1.3"
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.85"
-    }
-  }
-}
+# terraform {
+#   required_version = "~> 1.3"
+#   required_providers {
+#     azurerm = {
+#       source  = "hashicorp/azurerm"
+#       version = "~> 3.85"
+#     }
+#   }
+# }
 
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
-}
+# provider "azurerm" {
+#   features {}
+#   skip_provider_registration = true
+# }
 
 # module "prerequisites" {
 #   source   = "../prerequisites"
@@ -20,13 +20,13 @@ provider "azurerm" {
 #   tags     = var.tags
 # }
 
-module "deployments" {
-  source  = "../deployments/create-or-update"
-  name    = var.name
-  tags    = var.tags
-  sku     = var.sku
-  resource_group_name = var.resource_group_name
-}
+# module "deployments" {
+#   source  = "../deployments/create-or-update"
+#   name    = var.name
+#   tags    = var.tags
+#   sku     = var.sku
+#   resource_group_name = var.resource_group_name
+# }
 
 # resource "azurerm_nginx_deployment" "example" {
 #   name                     = var.name
@@ -51,7 +51,8 @@ module "deployments" {
 # }
 
 resource "azurerm_nginx_configuration" "example" {
-  nginx_deployment_id = module.deployments.deployment_id
+  count = var.configure ? 1 : 0
+  nginx_deployment_id = var.deployment_id
   root_file           = "/etc/nginx/nginx.conf"
 
   config_file {
