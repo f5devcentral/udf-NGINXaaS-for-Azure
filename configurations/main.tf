@@ -20,13 +20,13 @@ provider "azurerm" {
 #   tags     = var.tags
 # }
 
-module "deployment" {
-  source  = "../deployments/create-or-update"
-  name    = var.name
-  tags    = var.tags
-  sku     = var.sku
-  resource_group_name = var.resource_group_name
-}
+# module "deployment" {
+#   source  = "../deployments/create-or-update"
+#   name    = var.name
+#   tags    = var.tags
+#   sku     = var.sku
+#   resource_group_name = var.resource_group_name
+# }
 
 # resource "azurerm_nginx_deployment" "example" {
 #   name                     = var.name
