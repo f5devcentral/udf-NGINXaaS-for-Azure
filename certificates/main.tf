@@ -14,22 +14,24 @@ provider "azurerm" {
       purge_soft_delete_on_destroy = true
     }
   }
+  skip_provider_registration = true
 }
 
 data "azurerm_client_config" "current" {}
 
 module "prerequisites" {
   source   = "../prerequisites"
-  location = var.location
+#  location = var.location
   name     = var.name
   tags     = var.tags
+  resource_group_name = var.resource_group_name
 }
 
 # This keyvault is NOT firewalled.
 resource "azurerm_key_vault" "example" {
   name                      = var.name
-  location                  = var.location
-  resource_group_name       = module.prerequisites.resource_group_name
+  location                  = module.prerequisites.location
+  resource_group_name       = var.resource_group_name
   enable_rbac_authorization = true
 
   tenant_id                  = data.azurerm_client_config.current.tenant_id
@@ -108,9 +110,9 @@ resource "azurerm_role_assignment" "example" {
 
 resource "azurerm_nginx_deployment" "example" {
   name                     = var.name
-  resource_group_name      = module.prerequisites.resource_group_name
+  resource_group_name      = var.resource_group_name
   sku                      = var.sku
-  location                 = var.location
+  location                 = module.prerequisites.location
   diagnose_support_enabled = false
 
   identity {
