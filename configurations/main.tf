@@ -56,12 +56,14 @@ resource "azurerm_nginx_configuration" "example" {
   root_file           = "/etc/nginx/nginx.conf"
 
   config_file {
-    content      = filebase64("${path.module}/nginx.conf")
-    virtual_path = "/etc/nginx/nginx.conf"
+    for_each = var.configurations
+
+    content      = each.value.content
+    virtual_path = each.value.virtual_path
   }
 
-  config_file {
-    content      = filebase64("${path.module}/api.conf")
-    virtual_path = "/etc/nginx/site/api.conf"
-  }
+  # config_file {
+  #   content      = filebase64("${path.module}/api.conf")
+  #   virtual_path = "/etc/nginx/site/api.conf"
+  # }
 }
