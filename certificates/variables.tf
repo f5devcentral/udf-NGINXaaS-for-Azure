@@ -1,3 +1,8 @@
+# variable "location" {
+#  description = "Azure location name for NGINXaaS deployment."
+#  default     = "eastus2"
+#}
+
 variable "name" {
   description = "Name of NGINXaaS deployment and related resources."
   default     = "example-nginx"
@@ -8,10 +13,6 @@ variable "sku" {
   default     = "standard_Monthly"
 }
 
-variable "resource_group_name" {
-  description = "Name of UDF resource group"
-}
-
 variable "tags" {
   description = "Tags for NGINXaaS deployment and related resources."
   type        = map(any)
@@ -19,7 +20,7 @@ variable "tags" {
     env = "Production"
   }
 }
-variable "configure" {
-  description = "Workaround for Bug ID-891. Set false to skip configuration."
-  default = true
+
+variable "resource_group_name" {
+  description = "Name of UDF resource group"
 }
