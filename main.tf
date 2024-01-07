@@ -23,14 +23,14 @@ module "configurations" {
   source = "./configurations"
   deployment_id = module.deployments.deployment_id
   configure = var.configure
-  configuration = {
+  config_files = {
     base = { 
       virtual_path = "/etc/nginx/nginx.conf"
-      content = filebase64("${path.module}/files/nginx.conf")
+      content = filebase64("${path.module}/files/http/nginx.conf")
     }
     api = { 
       virtual_path = "/etc/nginx/site/api.conf"
-      content = filebase64("${path.module}/files/api.conf")
+      content = filebase64("${path.module}/files/http/api.conf")
     }
   }
 }

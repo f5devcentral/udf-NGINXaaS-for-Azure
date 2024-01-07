@@ -55,11 +55,13 @@ resource "azurerm_nginx_configuration" "example" {
   nginx_deployment_id = var.deployment_id
   root_file           = "/etc/nginx/nginx.conf"
 
-  config_file {
-    for_each = var.configurations
+  dynamic "config_file" {
+    for_each = var.config_files
 
-    content      = each.value.content
-    virtual_path = each.value.virtual_path
+    content {
+      content      = config_file.value["content"]
+      virtual_path = config_file.value["virtual_path"]
+    }
   }
 
   # config_file {
