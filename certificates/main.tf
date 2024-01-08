@@ -5,13 +5,17 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.85"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = ">= 3.0"
+    }
   }
 }
 
 provider "azurerm" {
   features {
     key_vault {
-      purge_soft_delete_on_destroy = true
+      purge_soft_delete_on_destroy = false
     }
   }
   skip_provider_registration = true
@@ -19,17 +23,28 @@ provider "azurerm" {
 
 data "azurerm_client_config" "current" {}
 
+resource "random_id" "key_vault_id" {
+  keepers = {
+    name = var.name
+  }
+  byte_length = 8
+}
+
+locals {
+  vault_name = substr("${var.name}-${random_id.key_vault_id.hex}", 0, 24)
+}
+
 module "prerequisites" {
   source   = "../prerequisites"
 #  location = var.location
-  name     = var.name
+  name     = random_id.key_vault_id.keepers.name
   tags     = var.tags
-  resource_group_name = var.resource_group_name
+  resource_group_name       = var.resource_group_name
 }
 
 # This keyvault is NOT firewalled.
 resource "azurerm_key_vault" "example" {
-  name                      = var.name
+  name                      = local.vault_name
   location                  = module.prerequisites.location
   resource_group_name       = var.resource_group_name
   enable_rbac_authorization = true
@@ -51,7 +66,7 @@ resource "azurerm_role_assignment" "current_user" {
 }
 
 resource "azurerm_key_vault_certificate" "example" {
-  name         = var.name
+  name     = random_id.key_vault_id.keepers.name
   key_vault_id = azurerm_key_vault.example.id
 
   certificate_policy {
@@ -109,8 +124,8 @@ resource "azurerm_role_assignment" "example" {
 }
 
 resource "azurerm_nginx_deployment" "example" {
-  name                     = var.name
-  resource_group_name      = var.resource_group_name
+  name     = random_id.key_vault_id.keepers.name
+  resource_group_name       = var.resource_group_name
   sku                      = var.sku
   location                 = module.prerequisites.location
   diagnose_support_enabled = false
@@ -131,7 +146,7 @@ resource "azurerm_nginx_deployment" "example" {
 }
 
 resource "azurerm_nginx_certificate" "example" {
-  name                     = var.name
+  name     = random_id.key_vault_id.keepers.name
   nginx_deployment_id      = azurerm_nginx_deployment.example.id
   key_virtual_path         = "/etc/nginx/ssl/test.key"
   certificate_virtual_path = "/etc/nginx/ssl/test.crt"
@@ -156,3 +171,4 @@ resource "azurerm_nginx_configuration" "example" {
     azurerm_nginx_certificate.example
   ]
 }
+
