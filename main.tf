@@ -45,6 +45,18 @@ module "certificates" {
   principal_id        = module.prerequisites.managed_identity_principal_id
 }
 
+resource "local_file" "desktop_link" {
+  content = templatefile("${path.module}/templates/urlfile.tpl",
+    {
+      proto = "http"
+      instance_ip = module.deployments.ip_address
+    }
+  )
+
+  filename = "$HOME/Desktop/NGINXaaS Instance.desktop"
+
+}
+
 # resource "azurerm_nginx_configuration" "example" {
 #   count = var.configure ? 1 : 0
 #   nginx_deployment_id = module.deployments.deployment_id
