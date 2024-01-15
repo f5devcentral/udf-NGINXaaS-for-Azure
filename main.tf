@@ -53,7 +53,7 @@ resource "local_file" "desktop_link" {
     }
   )
 
-  filename = "~/Desktop/NGINXaaS Instance.desktop"
+  filename = pathexpand("~/Desktop/NGINXaaS Instance.desktop")
 
 }
 
