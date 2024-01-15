@@ -46,14 +46,17 @@ module "certificates" {
 }
 
 resource "local_file" "desktop_link" {
+
+  for_each = toset(["http", "https"])
+
   content = templatefile("${path.module}/templates/urlfile.tpl",
     {
-      proto = "http"
+      proto = each.key
       instance_ip = module.deployments.ip_address
     }
   )
 
-  filename = pathexpand("~/Desktop/NGINXaaS Instance.desktop")
+  filename = pathexpand("~/Desktop/${upper(each.key)}NGINXaaS Instance.desktop")
 
 }
 
