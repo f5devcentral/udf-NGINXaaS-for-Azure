@@ -53,7 +53,7 @@ resource "local_file" "desktop_link" {
     }
   )
 
-  filename = "$HOME/Desktop/NGINXaaS Instance.desktop"
+  filename = "~/Desktop/NGINXaaS Instance.desktop"
 
 }
 
