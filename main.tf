@@ -1,38 +1,48 @@
 module "prerequisites" {
-  source   = "./prerequisites"
+  source = "./prerequisites"
   #location = var.location
-  name     = var.name
-  tags     = var.tags
+  name                = var.name
+  tags                = var.tags
   resource_group_name = var.resource_group_name
 }
 
 module "deployments" {
-  source  = "./deployments/create-or-update"
-  name    = var.name
-  tags    = var.tags
-  sku      = var.sku
-  managed_identity_id = module.prerequisites.managed_identity_id
+  source                        = "./deployments"
+  name                          = var.name
+  tags                          = var.tags
+  sku                           = var.sku
+  managed_identity_id           = module.prerequisites.managed_identity_id
   managed_identity_principal_id = module.prerequisites.managed_identity_principal_id
-  public_ip_address_id  = module.prerequisites.public_ip_address_id
-  subnet_id = module.prerequisites.subnet_id
-  location = module.prerequisites.location
-  resource_group_name = var.resource_group_name
+  public_ip_address_id          = module.prerequisites.public_ip_address_id
+  subnet_id                     = module.prerequisites.subnet_id
+  location                      = module.prerequisites.location
+  resource_group_name           = var.resource_group_name
 }
 
 module "configurations" {
-  source = "./configurations"
+  source        = "./configurations"
   deployment_id = module.deployments.deployment_id
-  configure = var.configure
+  configure     = var.configure
   config_files = {
-    base = { 
+    base = {
       virtual_path = "/etc/nginx/nginx.conf"
-      content = filebase64("${path.module}/files/http/nginx.conf")
+      content      = filebase64("${path.module}/files/https/nginx.conf")
     }
-    api = { 
+    api = {
       virtual_path = "/etc/nginx/site/api.conf"
-      content = filebase64("${path.module}/files/http/api.conf")
+      content      = filebase64("${path.module}/files/https/api.conf")
     }
   }
+}
+
+module "certificates" {
+  source              = "./certificates"
+  name                = var.name
+  tags                = var.tags
+  location            = module.prerequisites.location
+  resource_group_name = var.resource_group_name
+  deployment_id       = module.deployments.deployment_id
+  principal_id        = module.prerequisites.managed_identity_principal_id
 }
 
 # resource "azurerm_nginx_configuration" "example" {
