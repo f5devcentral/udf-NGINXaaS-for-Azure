@@ -56,6 +56,6 @@ module "certificates" {
 }
 
 module "udf_shortcuts" {
-  source = "./udf_shortcuts"
-  ip_address          = module.deployments.ip_address
+  source     = "./udf_shortcuts"
+  ip_address = module.deployments.ip_address
 }

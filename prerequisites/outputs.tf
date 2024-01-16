@@ -20,5 +20,5 @@ output "subnet_id" {
 
 output "location" {
   description = "Location of the resource group"
-  value	      = data.azurerm_resource_group.example.location
+  value       = data.azurerm_resource_group.example.location
 }

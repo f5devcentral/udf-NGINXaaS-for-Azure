@@ -4,7 +4,7 @@ variable "deployment_id" {
 
 variable "configure" {
   description = "Workaround for Bug ID-891. Set false to skip configuration."
-  default = true
+  default     = true
 }
 
 variable "config_files" {
