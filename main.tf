@@ -11,14 +11,14 @@ locals {
 
 module "prerequisites" {
   source = "./prerequisites"
-  name                = locals.name
+  name                = local.name
   tags                = var.tags
   resource_group_name = var.resource_group_name
 }
 
 module "deployments" {
   source                        = "./deployments"
-  name                          = locals.name
+  name                          = local.name
   tags                          = var.tags
   sku                           = var.sku
   managed_identity_id           = module.prerequisites.managed_identity_id
@@ -47,7 +47,7 @@ module "configurations" {
 
 module "certificates" {
   source              = "./certificates"
-  name                = locals.name
+  name                = local.name
   tags                = var.tags
   location            = module.prerequisites.location
   resource_group_name = var.resource_group_name
