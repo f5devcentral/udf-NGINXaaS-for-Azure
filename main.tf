@@ -43,6 +43,7 @@ module "configurations" {
       content      = filebase64("${path.module}/files/https/api.conf")
     }
   }
+  depends_on    = [ module.certificates ]
 }
 
 module "certificates" {
