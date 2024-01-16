@@ -38,6 +38,8 @@ The IP address of your NGINXaaS instance is provided as an output. Browse to
 
 Known Issues
 ------------
+
+### Terraform shows an error while trying to manage configuration of a fresh deployment
 There is a [known issue with applying a configuration to a newly-deployed
 NGINXaaS instance using TF](https://docs.nginx.com/nginxaas/azure/known-issues/#i-classfa-solid-fa-bug-stylecolore4002bi-terraform-shows-an-error-while-trying-to-manage-configuration-of-a-fresh-deployment-id-891).
 This is because deploying the NGINXaaS instance automatically creates a default
@@ -54,3 +56,23 @@ the TF configuration without the `configure=false` variable.
 You only need to do this the first time you deploy a new instance; once the
 configuration is part of TF's state, subsequent deployment will update it
 correctly.
+
+### Destroy operation hangs on module.certificates.azurerm_nginx_certificate.example
+
+When tearing down the configuration, the operation may hang when destroying the
+NGINX certificate resource. If this occurs, you can remove the resource from 
+the TF state with this command:
+
+#### OpenTofu
+```bash
+tofu state rm module.certificates.azurerm_nginx_certificate.example
+```
+
+#### Terraform
+```bash
+terraform state rm module.certificates.azurerm_nginx_certificate.example
+```
+
+After removing the resource from the TF state, re-run the destroy operation.
+The certificate resoure will be removed along with the NGINXaaS for Azure
+deployment.

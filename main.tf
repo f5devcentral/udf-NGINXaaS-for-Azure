@@ -1,14 +1,24 @@
+resource "random_id" "unique_id" {
+  keepers = {
+    name = var.name
+  }
+  byte_length = 12
+}
+
+locals {
+  name = substr("${var.name}-${random_id.unique_id.hex}", 0, 24)
+}
+
 module "prerequisites" {
   source = "./prerequisites"
-  #location = var.location
-  name                = var.name
+  name                = local.name
   tags                = var.tags
   resource_group_name = var.resource_group_name
 }
 
 module "deployments" {
   source                        = "./deployments"
-  name                          = var.name
+  name                          = local.name
   tags                          = var.tags
   sku                           = var.sku
   managed_identity_id           = module.prerequisites.managed_identity_id
@@ -37,7 +47,7 @@ module "configurations" {
 
 module "certificates" {
   source              = "./certificates"
-  name                = var.name
+  name                = local.name
   tags                = var.tags
   location            = module.prerequisites.location
   resource_group_name = var.resource_group_name
@@ -45,18 +55,7 @@ module "certificates" {
   principal_id        = module.prerequisites.managed_identity_principal_id
 }
 
-# resource "azurerm_nginx_configuration" "example" {
-#   count = var.configure ? 1 : 0
-#   nginx_deployment_id = module.deployments.deployment_id
-#   root_file           = "/etc/nginx/nginx.conf"
-
-#   config_file {
-#     content      = filebase64("${path.module}/nginx.conf")
-#     virtual_path = "/etc/nginx/nginx.conf"
-#   }
-
-#   config_file {
-#     content      = filebase64("${path.module}/api.conf")
-#     virtual_path = "/etc/nginx/site/api.conf"
-#   }
-# }
+module "udf_shortcuts" {
+  source     = "./udf_shortcuts"
+  ip_address = module.deployments.ip_address
+}
