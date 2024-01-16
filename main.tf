@@ -6,7 +6,7 @@ resource "random_id" "unique_id" {
 }
 
 locals {
-  name = substr("${var.name}-${random_id.key_vault_id.hex}", 0, 24)
+  name = substr("${var.name}-${random_id.unique_id.hex}", 0, 24)
 }
 
 module "prerequisites" {

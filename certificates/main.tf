@@ -13,7 +13,7 @@ data "azurerm_client_config" "current" {}
 
 # This keyvault is NOT firewalled.
 resource "azurerm_key_vault" "example" {
-  name                      = local.vault_name
+  name                      = var.name
   location                  = var.location
   resource_group_name       = var.resource_group_name
   enable_rbac_authorization = true
