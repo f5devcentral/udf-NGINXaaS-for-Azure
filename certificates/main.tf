@@ -1,26 +1,3 @@
-# terraform {
-#   required_version = "~> 1.3"
-#   required_providers {
-#     azurerm = {
-#       source  = "hashicorp/azurerm"
-#       version = "~> 3.85"
-#     }
-#     random = {
-#       source  = "hashicorp/random"
-#       version = ">= 3.0"
-#     }
-#   }
-# }
-
-# provider "azurerm" {
-#   features {
-#     key_vault {
-#       purge_soft_delete_on_destroy = false
-#     }
-#   }
-#   skip_provider_registration = true
-# }
-
 data "azurerm_client_config" "current" {}
 
 resource "random_id" "key_vault_id" {
@@ -33,14 +10,6 @@ resource "random_id" "key_vault_id" {
 locals {
   vault_name = substr("${var.name}-${random_id.key_vault_id.hex}", 0, 24)
 }
-
-# module "prerequisites" {
-#   source   = "../prerequisites"
-# #  location = var.location
-#   name     = random_id.key_vault_id.keepers.name
-#   tags     = var.tags
-#   resource_group_name       = var.resource_group_name
-# }
 
 # This keyvault is NOT firewalled.
 resource "azurerm_key_vault" "example" {
@@ -123,28 +92,6 @@ resource "azurerm_role_assignment" "example" {
   principal_id         = var.principal_id
 }
 
-# resource "azurerm_nginx_deployment" "example" {
-#   name     = random_id.key_vault_id.keepers.name
-#   resource_group_name       = var.resource_group_name
-#   sku                      = var.sku
-#   location                 = module.prerequisites.location
-#   diagnose_support_enabled = false
-
-#   identity {
-#     type         = "UserAssigned"
-#     identity_ids = [module.prerequisites.managed_identity_id]
-#   }
-
-#   frontend_public {
-#     ip_address = [module.prerequisites.public_ip_address_id]
-#   }
-#   network_interface {
-#     subnet_id = module.prerequisites.subnet_id
-#   }
-
-#   tags = var.tags
-# }
-
 resource "azurerm_nginx_certificate" "example" {
   name     = random_id.key_vault_id.keepers.name
   nginx_deployment_id      = var.deployment_id
@@ -152,23 +99,4 @@ resource "azurerm_nginx_certificate" "example" {
   certificate_virtual_path = "/etc/nginx/ssl/test.crt"
   key_vault_secret_id      = azurerm_key_vault_certificate.example.secret_id
 }
-
-# resource "azurerm_nginx_configuration" "example" {
-#   nginx_deployment_id = var.deployment_id
-#   root_file           = "/etc/nginx/nginx.conf"
-
-#   config_file {
-#     content      = filebase64("${path.module}/nginx.conf")
-#     virtual_path = "/etc/nginx/nginx.conf"
-#   }
-
-#   config_file {
-#     content      = filebase64("${path.module}/api.conf")
-#     virtual_path = "/etc/nginx/site/api.conf"
-#   }
-
-#   depends_on = [
-#     azurerm_nginx_certificate.example
-#   ]
-# }
 
