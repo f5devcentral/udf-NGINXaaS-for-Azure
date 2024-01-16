@@ -34,7 +34,211 @@ terraform apply
 ```
 
 The IP address of your NGINXaaS instance is provided as an output. Browse to
-`http://<ip_address/` to see your changes in action.
+`https://<ip_address>/` to see your changes in action.
+
+What it does
+------------
+
+This configuration is broken down into 5 modules:
+
+- **Prerequisites:** 
+Deploys the Azure resources needed to deploy NGINXaaS for Azure:
+  - Public IP Address
+  - Virtual Network
+  - Subnet
+  - NSG
+  - User Assigned Managed Identity
+
+- **Deployments:**
+Deploys an NGINXaaS for Azure Instance
+
+- **Certificates:**
+Creates resources for using HTTPS:
+  - Deploys an Azure Key Vault
+  - Loads a certificate into that vault
+  - Creates a certificate resource in the NGINXaaS for Azure Instance
+
+- **Configurations:**
+Updates the configuration on the on the NGINXaaS instance to:
+  - Use HTTPS instead of HTTP
+  - Change the response from the the default location block
+  - Adds an additional location block for the `/api` endpoint
+
+- **UDF Shortcuts:**
+Convenience features for working in UDF:
+  -  Creates HTTP and HTTPS shortcuts on the desktop to your deployment
+  -  Creates redirects to your deployment acessible from the bookmarks bar in
+  Chromium
+
+The Nitty-Gritty Details
+------------------------
+
+### Cloud Credentials
+
+The TF [Azure Resource Manager Provider](https://registry.terraform.io/providers/hashicorp/azurerm/latest)
+requires credentials to your Azure subscription in order to manage Azure
+resources. In UDF, an ephemeral Azure account is created for you, and your
+credentials are available in the Cloud Accounts tab of your deployment:
+
+**insert image**
+
+You can also access your cloud account metadata from within UDF by accessing
+the `http://metadata.udf/cloudAccounts` URL:
+
+```bash
+$ curl http://metadata.udf/cloudAccounts
+{
+  "cloudAccounts": [
+    {
+      "resourceGroup": "cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe",
+      "credentials": [
+        {
+          "password": "h-UEcp3CYeEbyTcrkevVmrr9rKrufPu.GP2iWFaw",
+          "tenant": "e206e013-b93b-4711-8e29-4c243d92b672",
+          "username": "9de0008b-1ceb-4149-9f87-8c83ee089e79",
+          "type": "AZURE_API_CREDENTIAL"
+        }
+      ],
+      "provider": "Azure"
+    }
+  ]
+}
+```
+
+The azurerm provider needs to know your tenant ID, SPN username, and password. 
+They can be passed as variables into the provider, or they can be set as the
+`ARM_TENANT_ID`, `ARM_CLIENT_ID`, and `ARM_CLIENT_SECRET` environment
+variables, respectively. Because your resource group is also created for you
+already, we also pass that into TF in the `TF_VAR_resource_group_name`
+environment variable.
+
+The azurerm provider also requires your subscription ID, which isn't included 
+in the UDF metadata, but you can get it by logging in with the Azure CLI:
+
+```bash
+$ az login --service-principal --username $ARM_CLIENT_ID --password $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+[
+  {
+    "cloudName": "AzureCloud",
+    "homeTenantId": "e206e013-b93b-4711-8e29-4c243d92b672",
+    "id": "614f0527-72db-4e40-adcc-e058a818cae9",
+    "isDefault": true,
+    "managedByTenants": [
+      {
+        "tenantId": "a21e903b-34f0-45e0-9f73-89c321eeab5b"
+      }
+    ],
+    "name": "F5-AZR_1337_UDF_Prod",
+    "state": "Enabled",
+    "tenantId": "e206e013-b93b-4711-8e29-4c243d92b672",
+    "user": {
+      "name": "9de0008b-1ceb-4149-9f87-8c83ee089e79",
+      "type": "servicePrincipal"
+    }
+  }
+]
+```
+
+The `id` attribute contains your subscription ID, which can be passed to the 
+azurerm provider in the `ARM_SUBSCRIPTION_ID` environment variable.
+
+To simplify this process, there is a bash script that you can source into your
+shell that does all of the above for you:
+
+```
+$ source ./populate_creds.sh 
+Environment Variable        | Value
+============================+==================================================
+TF_VAR_resource_group_name: | cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe
+ARM_TENANT_ID:              | e206e013-b93b-4711-8e29-4c243d92b672
+ARM_CLIENT_ID:              | 9de0008b-1ceb-4149-9f87-8c83ee089e79
+ARM_CLIENT_SECRET:          | <hidden>
+ARM_SUBSCRIPTION_ID:        | 614f0527-72db-4e40-adcc-e058a818cae9
+Azure CLI logged in
+```
+
+To simplify it even further, if you are using the jumphost over RDP, there is a
+shortcut on the desktop that will open a new terminal window with these values
+already populated.
+
+### Applying the Configuration
+Running `tofu init` and `tofu plan` will show you the resources that TF is
+about to create. See the [What it does](#what-it-does) section for more
+details.
+
+At this point, you could simply run `tofu apply`, but if you do, you'll receive
+an error from TF due to [a known issue](#terraform-shows-an-error-while-trying-to-manage-configuration-of-a-fresh-deployment)
+with the TF provider. If you don't mind seeing the error you can go ahead and 
+apply the configuration. If you'd rather skip the part of the configration that
+throws the error, you can pass in the `configure` variable with a value of 
+`false`:
+
+```bash
+$ tofu apply -var="configure=false"
+```
+
+Take a moment to look at the deployment before we apply a configuration. TF 
+will output the IP address of your deployment. Browse to it (or use the http
+shortcut provided on the jumphost desktop), and you should see the default
+NGINXaaS for Azure landig page:
+
+**insert image**
+
+After the first apply attempt, you will need to import the default NGINX
+configuration back into the TF state. There is a bash script, 
+`import_config.sh` provided that will do this for you:
+
+```
+$ ./import_config.sh 
+Importing default NGINXaaS configuration into tofu state...
+module.certificates.data.azurerm_client_config.current: Reading...
+module.certificates.data.azurerm_client_config.current: Read complete after 0s [id=nqMHT6A4xWge0HQxP28K82xgTZZj5euqbxSD5L6WaLRhearNQiKzkHgpWmkAmb5mwXVvRCcJhUh2PT8W4QkegTt9HV2MuaVc12CxUMJcJJG45uWWRNZawZUyFaiuMHmiwGMF2NyyWwufk1h82ix3n7vVKfcrW8NgzdpJTjYAB7cJpuV9x3u1WFNvmwkm015EKgpD2Fwke85M8hS1rNkhRX4A5zJuHvHD3HufX2r7X8ZW9u5bTxzkLMzAMaVrQkYhcekbXGy6KiJNkYd=]
+module.prerequisites.data.azurerm_resource_group.example: Reading...
+module.prerequisites.data.azurerm_resource_group.example: Read complete after 0s [id=/subscriptions/614f0527-72db-4e40-adcc-e058a818cae9/resourceGroups/cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe]
+module.configurations.azurerm_nginx_configuration.example[0]: Importing from ID "/subscriptions/614f0527-72db-4e40-adcc-e058a818cae9/resourceGroups/cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe/providers/Nginx.NginxPlus/nginxDeployments/example-nginx-9b7965b3fb/configurations/default"...
+module.configurations.azurerm_nginx_configuration.example[0]: Import prepared!
+  Prepared azurerm_nginx_configuration for import
+module.configurations.azurerm_nginx_configuration.example[0]: Refreshing state... [id=/subscriptions/614f0527-72db-4e40-adcc-e058a818cae9/resourceGroups/cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe/providers/Nginx.NginxPlus/nginxDeployments/example-nginx-9b7965b3fb/configurations/default]
+
+Import successful!
+
+The resources that were imported are shown above. These resources are now in
+your OpenTofu state and will henceforth be managed by OpenTofu.
+
+Re-run tofu apply to apply the new configuration
+```
+
+Now you can re-run `tofu apply` (without the `-var="configure=false"` option),
+and TF will apply the new configuration to your deployment. The NGINX config
+files are located in the `files/https` directory; take a look at them and see what
+they do. 
+
+Once the configuration is applied, try connecting to your instance again via
+HTTP. Your connection should fail, because the instance is now listening only
+for HTTPS. Change your browser to connect to `https://<ip_address>` (or use the
+https shortcut on the jumphost desktop), click past the certifiate warning, and
+you should see the new "Hello world" page. Nagivate to the `/api` endpoint to
+see the effect of the additional location block.
+
+### Destroying the configuration
+
+`tofu destroy` will tear down the entire configuration.
+
+### Why do all of my resources have a random string appended to their names?
+
+There are three factors that come together to cause issues with Key Vaults and
+ephemeral UDF accounts:
+
+  1.  Key Vault names are *globally* unique.
+  2.  Key Vaults are only soft-deleted when they are destroyed.
+  3.  Only subscription owners can purge a soft-deleted Key Vault before the
+      retention period expires (minimum 7 days)
+
+To prevent collisions from occurring between UDF deployments that don't change
+the default name, a random suffix is appended to the name variable used for all
+the resources created by this configuration. This suffix will change if you
+re-apply the configuration after destroying it, so that you don't collide with
+your own soft-deleted vault.
 
 Known Issues
 ------------
