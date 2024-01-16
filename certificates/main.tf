@@ -35,7 +35,7 @@ resource "azurerm_role_assignment" "current_user" {
 }
 
 resource "azurerm_key_vault_certificate" "example" {
-  name         = random_id.key_vault_id.keepers.name
+  name         = var.name
   key_vault_id = azurerm_key_vault.example.id
 
   certificate_policy {
