@@ -10,7 +10,7 @@ locals {
 }
 
 module "prerequisites" {
-  source = "./prerequisites"
+  source              = "./prerequisites"
   name                = locals.name
   tags                = var.tags
   resource_group_name = var.resource_group_name
@@ -56,6 +56,6 @@ module "certificates" {
 }
 
 module "udf_shortcuts" {
-  source = "./udf_shortcuts"
-  ip_address          = module.deployments.ip_address
+  source     = "./udf_shortcuts"
+  ip_address = module.deployments.ip_address
 }

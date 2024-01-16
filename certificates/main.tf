@@ -35,7 +35,7 @@ resource "azurerm_role_assignment" "current_user" {
 }
 
 resource "azurerm_key_vault_certificate" "example" {
-  name     = random_id.key_vault_id.keepers.name
+  name         = random_id.key_vault_id.keepers.name
   key_vault_id = azurerm_key_vault.example.id
 
   certificate_policy {
@@ -93,7 +93,7 @@ resource "azurerm_role_assignment" "example" {
 }
 
 resource "azurerm_nginx_certificate" "example" {
-  name     = random_id.key_vault_id.keepers.name
+  name                     = random_id.key_vault_id.keepers.name
   nginx_deployment_id      = var.deployment_id
   key_virtual_path         = "/etc/nginx/ssl/test.key"
   certificate_virtual_path = "/etc/nginx/ssl/test.crt"

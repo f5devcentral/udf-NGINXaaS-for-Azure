@@ -1,5 +1,5 @@
 resource "azurerm_nginx_configuration" "example" {
-  count = var.configure ? 1 : 0
+  count               = var.configure ? 1 : 0
   nginx_deployment_id = var.deployment_id
   root_file           = "/etc/nginx/nginx.conf"
 
