@@ -4,7 +4,7 @@
 	<script type = "text/javascript">
 		<!--
 		window.onload = function() {
-					window.location.replace("https://www.genericor.com");
+					window.location.replace("${proto}://${ip_address}/");
 				}
 		-->
 	</script>

@@ -44,17 +44,7 @@ module "certificates" {
   principal_id        = module.prerequisites.managed_identity_principal_id
 }
 
-resource "local_file" "desktop_link" {
-
-  for_each = toset(["http", "https"])
-
-  content = templatefile("${path.module}/templates/urlfile.tpl",
-    {
-      proto = each.key
-      instance_ip = module.deployments.ip_address
-    }
-  )
-
-  filename = pathexpand("~/Desktop/${upper(each.key)}NGINXaaS Instance.desktop")
-
+module "udf_shortcuts" {
+  source = "./udf_shortcuts"
+  ip_address          = module.deployments.ip_address
 }
