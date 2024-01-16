@@ -18,7 +18,7 @@ resource "local_file" "redirect_files" {
   content = templatefile("${path.module}/templates/redirect.html.tpl",
     {
       proto = each.key
-      instance_ip = var.ip_address
+      ip_address = var.ip_address
     }
   )
   filename = "${path.root}/output/${each.key}_redirect.html"
