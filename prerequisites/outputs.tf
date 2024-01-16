@@ -1,8 +1,3 @@
-# output "resource_group_name" {
-#   description = "Name of the resource group."
-#   value       = data.azurerm_resource_group.example.name
-# }
-
 output "managed_identity_id" {
   description = "ID of the managed identity."
   value       = azurerm_user_assigned_identity.example.id
@@ -25,5 +20,5 @@ output "subnet_id" {
 
 output "location" {
   description = "Location of the resource group"
-  value	      = data.azurerm_resource_group.example.location
+  value       = data.azurerm_resource_group.example.location
 }

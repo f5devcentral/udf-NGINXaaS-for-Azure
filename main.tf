@@ -1,14 +1,24 @@
+resource "random_id" "unique_id" {
+  keepers = {
+    name = var.name
+  }
+  byte_length = 12
+}
+
+locals {
+  name = substr("${var.name}-${random_id.unique_id.hex}", 0, 24)
+}
+
 module "prerequisites" {
   source = "./prerequisites"
-  #location = var.location
-  name                = var.name
+  name                = local.name
   tags                = var.tags
   resource_group_name = var.resource_group_name
 }
 
 module "deployments" {
   source                        = "./deployments"
-  name                          = var.name
+  name                          = local.name
   tags                          = var.tags
   sku                           = var.sku
   managed_identity_id           = module.prerequisites.managed_identity_id
@@ -38,7 +48,7 @@ module "configurations" {
 
 module "certificates" {
   source              = "./certificates"
-  name                = var.name
+  name                = local.name
   tags                = var.tags
   location            = module.prerequisites.location
   resource_group_name = var.resource_group_name
@@ -46,17 +56,7 @@ module "certificates" {
   principal_id        = module.prerequisites.managed_identity_principal_id
 }
 
-resource "local_file" "desktop_link" {
-
-  for_each = toset(["http", "https"])
-
-  content = templatefile("${path.module}/templates/urlfile.tpl",
-    {
-      proto = each.key
-      instance_ip = module.deployments.ip_address
-    }
-  )
-
-  filename = pathexpand("~/Desktop/${upper(each.key)}NGINXaaS Instance.desktop")
-
+module "udf_shortcuts" {
+  source     = "./udf_shortcuts"
+  ip_address = module.deployments.ip_address
 }
