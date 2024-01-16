@@ -5,5 +5,5 @@ variable "ip_address" {
 variable "desktop_path" {
   description = "Path to user's Desktop directory"
   type = string
-  default = pathexpand("~/Desktop")
+  default = "~/Desktop"
 }

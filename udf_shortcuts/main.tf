@@ -10,7 +10,7 @@ resource "local_file" "desktop_link" {
       instance_ip = var.ip_address
     }
   )
-  filename = "${var.desktop_path}/${upper(each.key)}NGINXaaS Instance.desktop"
+  filename = "${pathexpand(var.desktop_path)}/${upper(each.key)}NGINXaaS Instance.desktop"
 }
 
 resource "local_file" "redirect_files" {
