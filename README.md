@@ -18,9 +18,9 @@ To stand up an instance, execute the following:
 source ../populate_creds.sh
 tofu init
 tofu plan
-tofu apply --var="configure=false"
+tofu apply --var="configure=false" --auto-approve
 ./import_config.sh
-tofu apply
+tofu apply --auto-approve
 ```
 
 ### Terraform
@@ -28,9 +28,9 @@ tofu apply
 source ../populate_creds.sh
 terraform init
 terraform plan
-terraform apply --var="configure=false"
+terraform apply --var="configure=false" --auto-approve
 ./import_config.sh
-terraform apply
+terraform apply --auto-approve
 ```
 
 The IP address of your NGINXaaS instance is provided as an output. Browse to
@@ -80,7 +80,7 @@ requires credentials to your Azure subscription in order to manage Azure
 resources. In UDF, an ephemeral Azure account is created for you, and your
 credentials are available in the Cloud Accounts tab of your deployment:
 
-**insert image**
+![UDF Cloud Accounts tab](images/UDF%20Cloud%20Accounts.png)
 
 You can also access your cloud account metadata from within UDF by accessing
 the `http://metadata.udf/cloudAccounts` URL:
@@ -180,13 +180,13 @@ $ tofu apply -var="configure=false"
 Take a moment to look at the deployment before we apply a configuration. TF 
 will output the IP address of your deployment. Browse to it (or use the http
 shortcut provided on the jumphost desktop), and you should see the default
-NGINXaaS for Azure landig page:
+NGINXaaS for Azure landing page:
 
-**insert image**
+![NGINXaaS for Azure Default Landing Page](images/N4A%20Default%20Page.png)
 
 After the first apply attempt, you will need to import the default NGINX
-configuration back into the TF state. There is a bash script, 
-`import_config.sh` provided that will do this for you:
+configuration back into the TF state using the `tofu import` command. There is
+a bash script, `import_config.sh` provided that will do this for you:
 
 ```
 $ ./import_config.sh 
