@@ -1,11 +1,11 @@
 variable "name" {
   description = "Name of NGINXaaS deployment and related resources."
-  type = string
+  type        = string
 }
 
 variable "resource_group_name" {
   description = "Name of resource group"
-  type = string
+  type        = string
 }
 
 variable "tags" {

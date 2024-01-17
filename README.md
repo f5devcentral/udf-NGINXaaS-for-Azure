@@ -260,23 +260,3 @@ the TF configuration without the `configure=false` variable.
 You only need to do this the first time you deploy a new instance; once the
 configuration is part of TF's state, subsequent deployment will update it
 correctly.
-
-### Destroy operation hangs on module.certificates.azurerm_nginx_certificate.example
-
-When tearing down the configuration, the operation may hang when destroying the
-NGINX certificate resource. If this occurs, you can remove the resource from 
-the TF state with this command:
-
-#### OpenTofu
-```bash
-tofu state rm module.certificates.azurerm_nginx_certificate.example
-```
-
-#### Terraform
-```bash
-terraform state rm module.certificates.azurerm_nginx_certificate.example
-```
-
-After removing the resource from the TF state, re-run the destroy operation.
-The certificate resoure will be removed along with the NGINXaaS for Azure
-deployment.

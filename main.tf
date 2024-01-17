@@ -10,7 +10,7 @@ locals {
 }
 
 module "prerequisites" {
-  source = "./prerequisites"
+  source              = "./prerequisites"
   name                = local.name
   tags                = var.tags
   resource_group_name = var.resource_group_name
@@ -43,7 +43,7 @@ module "configurations" {
       content      = filebase64("${path.module}/files/https/api.conf")
     }
   }
-  depends_on    = [ module.certificates ]
+  depends_on = [module.certificates]
 }
 
 module "certificates" {
