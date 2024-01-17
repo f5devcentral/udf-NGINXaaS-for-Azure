@@ -15,7 +15,7 @@ To stand up an instance, execute the following:
 
 ### OpenTofu
 ```bash
-source ../populate_creds.sh
+source ./populate_creds.sh
 tofu init
 tofu plan
 tofu apply --var="configure=false" --auto-approve
@@ -25,7 +25,7 @@ tofu apply --auto-approve
 
 ### Terraform
 ```bash
-source ../populate_creds.sh
+source ./populate_creds.sh
 terraform init
 terraform plan
 terraform apply --var="configure=false" --auto-approve
