@@ -1,16 +1,5 @@
 data "azurerm_client_config" "current" {}
 
-# resource "random_id" "key_vault_id" {
-#   keepers = {
-#     name = var.name
-#   }
-#   byte_length = 8
-# }
-
-# locals {
-#   vault_name = substr("${var.name}-${random_id.key_vault_id.hex}", 0, 24)
-# }
-
 # This keyvault is NOT firewalled.
 resource "azurerm_key_vault" "example" {
   name                      = var.name

@@ -1,5 +1,6 @@
 variable "ip_address" {
-  description = "IP Address of the NGINX deployment"
+  description = "IP Address of the NGINXaaS deployment"
+  type        = string
 }
 
 variable "desktop_path" {
