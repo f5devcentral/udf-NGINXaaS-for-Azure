@@ -1,19 +1,16 @@
-NGINXaaS for Azure
-==================
+# NGINXaaS for Azure
 
-This is a Terraform/OpenTofu configuration to deploy an NGINXaaS for Azure
-instance into a UDF managed Azure account. Infrastructure prerequisites, the 
-NGINXaaS instance itself, and an NGINX configuration are deployed though this
+This is a Terraform/OpenTofu configuration to deploy an NGINXaaS for Azure instance into a UDF managed Azure account. Infrastructure prerequisites, the NGINXaaS instance itself, and an NGINX configuration are deployed though this
 config.
 
 This document will use TF to refer to either Terraform or OpenTofu.
 
-TL;DR;
-------
+## TL;DR;
 
 To stand up an instance, execute the following:
 
 ### OpenTofu
+
 ```bash
 cd ~/udf-NGINXaaS-for-Azure
 source ./populate_creds.sh
@@ -25,6 +22,7 @@ tofu apply --auto-approve
 ```
 
 ### Terraform
+
 ```bash
 cd ~/udf-NGINXaaS-for-Azure
 source ./populate_creds.sh
@@ -38,12 +36,11 @@ terraform apply --auto-approve
 The IP address of your NGINXaaS instance is provided as an output. Browse to
 `https://<ip_address>/` to see your changes in action.
 
-What it does
-------------
+## What it does
 
 This configuration is broken down into 5 modules:
 
-- **Prerequisites:** 
+- **Prerequisites:**
 Deploys the Azure resources needed to deploy NGINXaaS for Azure:
   - Public IP Address
   - Virtual Network
@@ -68,12 +65,10 @@ Updates the configuration on the on the NGINXaaS instance to:
 
 - **UDF Shortcuts:**
 Convenience features for working in UDF:
-  -  Creates HTTP and HTTPS shortcuts on the desktop to your deployment
-  -  Creates redirects to your deployment acessible from the bookmarks bar in
-  Chromium
+  - Creates HTTP and HTTPS shortcuts on the desktop to your deployment
+  - Creates redirects to your deployment accessible from the bookmarks bar in Chromium
 
-The Nitty-Gritty Details
-------------------------
+## The Nitty-Gritty Details
 
 ### Cloud Credentials
 
@@ -107,15 +102,10 @@ $ curl http://metadata.udf/cloudAccounts
 }
 ```
 
-The azurerm provider needs to know your tenant ID, SPN username, and password. 
-They can be passed as variables into the provider, or they can be set as the
-`ARM_TENANT_ID`, `ARM_CLIENT_ID`, and `ARM_CLIENT_SECRET` environment
-variables, respectively. Because your resource group is also created for you
-already, we also pass that into TF in the `TF_VAR_resource_group_name`
+The azurerm provider needs to know your tenant ID, SPN username, and password. They can be passed as variables into the provider, or they can be set as the `ARM_TENANT_ID`, `ARM_CLIENT_ID`, and `ARM_CLIENT_SECRET` environment variables, respectively. Because your resource group is also created for you already, we also pass that into TF in the `TF_VAR_resource_group_name`
 environment variable.
 
-The azurerm provider also requires your subscription ID, which isn't included 
-in the UDF metadata, but you can get it by logging in with the Azure CLI:
+The azurerm provider also requires your subscription ID, which isn't included in the UDF metadata, but you can get it by logging in with the Azure CLI:
 
 ```bash
 $ az login --service-principal --username $ARM_CLIENT_ID --password $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
@@ -141,11 +131,9 @@ $ az login --service-principal --username $ARM_CLIENT_ID --password $ARM_CLIENT_
 ]
 ```
 
-The `id` attribute contains your subscription ID, which can be passed to the 
-azurerm provider in the `ARM_SUBSCRIPTION_ID` environment variable.
+The `id` attribute contains your subscription ID, which can be passed to the azurerm provider in the `ARM_SUBSCRIPTION_ID` environment variable.
 
-To simplify this process, there is a bash script that you can source into your
-shell that does all of the above for you:
+To simplify this process, there is a bash script that you can source into your shell that does all of the above for you:
 
 ```bash
 $ source ./populate_creds.sh 
@@ -164,25 +152,20 @@ shortcut on the desktop that will open a new terminal window with these values
 already populated.
 
 ### Applying the Configuration
+
 Running `tofu init` and `tofu plan` will show you the resources that TF is
 about to create. See the [What it does](#what-it-does) section for more
 details.
 
 At this point, you could simply run `tofu apply`, but if you do, you'll receive
 an error from TF due to [a known issue](#terraform-shows-an-error-while-trying-to-manage-configuration-of-a-fresh-deployment)
-with the TF provider. If you don't mind seeing the error you can go ahead and 
-apply the configuration. If you'd rather skip the part of the configration that
-throws the error, you can pass in the `configure` variable with a value of 
-`false`:
+with the TF provider. If you don't mind seeing the error you can go ahead and apply the configuration. If you'd rather skip the part of the configuration that throws the error, you can pass in the `configure` variable with a value of `false`:
 
 ```bash
 $ tofu apply -var="configure=false"
 ```
 
-Take a moment to look at the deployment before we apply a configuration. TF 
-will output the IP address of your deployment. Browse to it (or use the http
-shortcut provided on the jumphost desktop), and you should see the default
-NGINXaaS for Azure landing page:
+Take a moment to look at the deployment before we apply a configuration. TF will output the IP address of your deployment. Browse to it (or use the http shortcut provided on the jumphost desktop), and you should see the default NGINXaaS for Azure landing page:
 
 ![NGINXaaS for Azure Default Landing Page](images/N4A%20Default%20Page.png)
 
@@ -213,14 +196,9 @@ Re-run tofu apply to apply the new configuration
 Now you can re-run `tofu apply` (without the `-var="configure=false"` option),
 and TF will apply the new configuration to your deployment. The NGINX config
 files are located in the `files/https` directory; take a look at them and see what
-they do. 
+they do.
 
-Once the configuration is applied, try connecting to your instance again via
-HTTP. Your connection should fail, because the instance is now listening only
-for HTTPS. Change your browser to connect to `https://<ip_address>` (or use the
-https shortcut on the jumphost desktop), click past the certifiate warning, and
-you should see the new "Hello world" page. Nagivate to the `/api` endpoint to
-see the effect of the additional location block.
+Once the configuration is applied, try connecting to your instance again via HTTP. Your connection should fail, because the instance is now listening only for HTTPS. Change your browser to connect to `https://<ip_address>` (or use the https shortcut on the jumphost desktop), click past the certificate warning, and you should see the new "Hello world" page. Navigate to the `/api` endpoint to see the effect of the additional location block.
 
 ### Destroying the configuration
 
@@ -231,10 +209,9 @@ see the effect of the additional location block.
 There are three factors that come together to cause issues with Key Vaults and
 ephemeral UDF accounts:
 
-  1.  Key Vault names are *globally* unique.
-  2.  Key Vaults are only soft-deleted when they are destroyed.
-  3.  Only subscription owners can purge a soft-deleted Key Vault before the
-      retention period expires (minimum 7 days)
+  1. Key Vault names are *globally* unique.
+  2. Key Vaults are only soft-deleted when they are destroyed.
+  3. Only subscription owners can purge a soft-deleted Key Vault before the retention period expires (minimum 7 days)
 
 To prevent collisions from occurring between UDF deployments that don't change
 the default name, a random suffix is appended to the name variable used for all
@@ -242,7 +219,7 @@ the resources created by this configuration. This suffix will change if you
 re-apply the configuration after destroying it, so that you don't collide with
 your own soft-deleted vault.
 
-Examining your Deployment
+## Examining your Deployment
 -------------------------
 
 Ephemeral Azure accounts don't have access to the Azure Portal, but you can
@@ -371,16 +348,11 @@ $ az nginx deployment configuration show --resource-group $TF_VAR_resource_group
 ```
 </details>
 
-Known Issues
-------------
-
 ### Terraform shows an error while trying to manage configuration of a fresh deployment
+
 There is a [known issue with applying a configuration to a newly-deployed
 NGINXaaS instance using TF](https://docs.nginx.com/nginxaas/azure/known-issues/#i-classfa-solid-fa-bug-stylecolore4002bi-terraform-shows-an-error-while-trying-to-manage-configuration-of-a-fresh-deployment-id-891).
-This is because deploying the NGINXaaS instance automatically creates a default
-configuration, but TF doesn't know about it yet. To work around this issue,
-the default NGINXaaS configuration needs to be imported into the TF state, and
-the configuration re-applied.
+This is because deploying the NGINXaaS instance automatically creates a default configuration, but TF doesn't know about it yet. To work around this issue, the default NGINXaaS configuration needs to be imported into the TF state, and the configuration re-applied.
 
 To avoid seeing this error the first time you apply the TF configuration, you
 can call `plan` or `apply` with the `configure` variable set to `false`. This
