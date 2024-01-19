@@ -348,6 +348,8 @@ $ az nginx deployment configuration show --resource-group $TF_VAR_resource_group
 ```
 </details>
 
+## Known Issues
+
 ### Terraform shows an error while trying to manage configuration of a fresh deployment
 
 There is a [known issue with applying a configuration to a newly-deployed
