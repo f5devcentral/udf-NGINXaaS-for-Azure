@@ -15,6 +15,7 @@ To stand up an instance, execute the following:
 
 ### OpenTofu
 ```bash
+cd ~/udf-NGINXaaS-for-Azure
 source ./populate_creds.sh
 tofu init
 tofu plan
@@ -25,6 +26,7 @@ tofu apply --auto-approve
 
 ### Terraform
 ```bash
+cd ~/udf-NGINXaaS-for-Azure
 source ./populate_creds.sh
 terraform init
 terraform plan
@@ -145,7 +147,7 @@ azurerm provider in the `ARM_SUBSCRIPTION_ID` environment variable.
 To simplify this process, there is a bash script that you can source into your
 shell that does all of the above for you:
 
-```
+```bash
 $ source ./populate_creds.sh 
 Environment Variable        | Value
 ============================+==================================================
@@ -188,7 +190,7 @@ After the first apply attempt, you will need to import the default NGINX
 configuration back into the TF state using the `tofu import` command. There is
 a bash script, `import_config.sh` provided that will do this for you:
 
-```
+```bash
 $ ./import_config.sh 
 Importing default NGINXaaS configuration into tofu state...
 module.certificates.data.azurerm_client_config.current: Reading...
@@ -239,6 +241,135 @@ the default name, a random suffix is appended to the name variable used for all
 the resources created by this configuration. This suffix will change if you
 re-apply the configuration after destroying it, so that you don't collide with
 your own soft-deleted vault.
+
+Examining your Deployment
+-------------------------
+
+Ephemeral Azure accounts don't have access to the Azure Portal, but you can
+still use the Azure CLI to see what has been deployed in your tenant:
+
+### List all resources
+
+```bash
+az resource list --output table
+```
+<details>
+  <summary>Example output</summary>
+
+```bash
+$ az resource list --output table
+Name                      ResourceGroup                                      Location    Type                                              Status
+------------------------  -------------------------------------------------  ----------  ------------------------------------------------  --------
+example-nginx-9b7965b3fb  cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe  westus2     Microsoft.KeyVault/vaults
+example-nginx-9b7965b3fb  cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe  westus2     Microsoft.ManagedIdentity/userAssignedIdentities
+example-nginx-9b7965b3fb  cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe  westus2     Microsoft.Network/networkSecurityGroups
+example-nginx-9b7965b3fb  cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe  westus2     Microsoft.Network/publicIPAddresses
+example-nginx-9b7965b3fb  cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe  westus2     Microsoft.Network/virtualNetworks
+example-nginx-9b7965b3fb  cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe  westus2     Nginx.NginxPlus/nginxDeployments
+```
+</details>
+
+### Show the NGINXaaS deployment
+
+```bash
+az nginx deployment show \
+    --resource-group $TF_VAR_resource_group_name \
+    --deployment-name <NGINXaaS Deployment Name from TF output>
+```
+<details>
+  <summary>Example output</summary>
+
+```bash
+$ az nginx deployment show  --resource-group $TF_VAR_resource_group_name --deployment-name example-nginx-9b7965b3fb
+{
+  "id": "/subscriptions/614f0527-72db-4e40-adcc-e058a818cae9/resourceGroups/cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe/providers/Nginx.NginxPlus/nginxDeployments/example-nginx-9b7965b3fb",
+  "identity": {
+    "type": "UserAssigned",
+    "userAssignedIdentities": {
+      "/subscriptions/614f0527-72db-4e40-adcc-e058a818cae9/resourceGroups/cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe/providers/Microsoft.ManagedIdentity/userAssignedIdentities/example-nginx-9b7965b3fb": {
+        "clientId": "b95361c0-bb82-46df-bb56-99567ca73929",
+        "principalId": "b5143fb6-23c8-4042-9bd6-90fe1e793875"
+      }
+    }
+  },
+  "location": "westus2",
+  "name": "example-nginx-9b7965b3fb",
+  "properties": {
+    "enableDiagnosticsSupport": true,
+    "ipAddress": "20.69.120.9",
+    "managedResourceGroup": "NGX_cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe_example-nginx-9b7965b3fb_westus2",
+    "networkProfile": {
+      "frontEndIPConfiguration": {
+        "publicIPAddresses": [
+          {
+            "id": "/subscriptions/614f0527-72db-4e40-adcc-e058a818cae9/resourceGroups/cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe/providers/Microsoft.Network/publicIPAddresses/example-nginx-9b7965b3fb",
+            "resourceGroup": "cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe"
+          }
+        ]
+      },
+      "networkInterfaceConfiguration": {
+        "subnetId": "/subscriptions/614f0527-72db-4e40-adcc-e058a818cae9/resourceGroups/cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe/providers/Microsoft.Network/virtualNetworks/example-nginx-9b7965b3fb/subnets/example-nginx-9b7965b3fb"
+      }
+    },
+    "nginxVersion": "1.25.1 (nginx-plus-r30-p1)",
+    "provisioningState": "Succeeded"
+  },
+  "resourceGroup": "cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe",
+  "sku": {
+    "name": "standard_Monthly"
+  },
+  "systemData": {
+    "createdAt": "2024-01-19T17:03:30.2182174Z",
+    "createdBy": "9de0008b-1ceb-4149-9f87-8c83ee089e79",
+    "createdByType": "Application",
+    "lastModifiedAt": "2024-01-19T17:03:30.2182174Z",
+    "lastModifiedBy": "9de0008b-1ceb-4149-9f87-8c83ee089e79",
+    "lastModifiedByType": "Application"
+  },
+  "tags": {
+    "env": "Production"
+  },
+  "type": "nginx.nginxplus/nginxdeployments"
+}
+```
+</details>
+
+### Show the default NGINX configuration
+
+```bash
+az nginx deployment configuration show \
+    --resource-group $TF_VAR_resource_group_name \
+    --deployment-name <NGINXaaS Deployment Name from TF output> \
+    --name default
+```
+<details>
+  <summary>Example output</summary>
+
+```bash
+$ az nginx deployment configuration show --resource-group $TF_VAR_resource_group_name --deployment-name example-nginx-9b7965b3fb --name default
+{
+  "id": "/subscriptions/614f0527-72db-4e40-adcc-e058a818cae9/resourceGroups/cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe/providers/NGINX.NGINXPLUS/nginxDeployments/example-nginx-9b7965b3fb/configurations/default",
+  "name": "default",
+  "properties": {
+    "files": [
+      {
+        "content": "bG9jYXRpb24gL2FwaSB7CiBkZWZhdWx0X3R5cGUgdGV4dC9odG1sOwogcmV0dXJuIDIwMCAnSGVsbG8gZnJvbSBBUEknOwp9Cg==",
+        "virtualPath": "/etc/nginx/site/api.conf"
+      },
+      {
+        "content": "aHR0cCB7CiAgICBzZXJ2ZXIgewogICAgICAgIGxpc3RlbiA0NDMgc3NsOwogICAgICAgIHNzbF9jZXJ0aWZpY2F0ZSAvZXRjL25naW54L3NzbC90ZXN0LmNydDsKICAgICAgICBzc2xfY2VydGlmaWNhdGVfa2V5IC9ldGMvbmdpbngvc3NsL3Rlc3Qua2V5OwogICAgICAgIGxvY2F0aW9uIC8gewogICAgICAgICAgICByZXR1cm4gMjAwICdIZWxsbyBXb3JsZCc7CiAgICAgICAgfQogICAgICAgIGluY2x1ZGUgc2l0ZS8qLmNvbmY7CiAgICB9Cn0K",
+        "virtualPath": "/etc/nginx/nginx.conf"
+      }
+    ],
+    "package": {},
+    "provisioningState": "Succeeded",
+    "rootFile": "/etc/nginx/nginx.conf"
+  },
+  "resourceGroup": "cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe",
+  "type": "NGINX.NGINXPLUS/nginxDeployments/configurations"
+}
+```
+</details>
 
 Known Issues
 ------------
