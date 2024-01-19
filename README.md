@@ -220,7 +220,6 @@ re-apply the configuration after destroying it, so that you don't collide with
 your own soft-deleted vault.
 
 ## Examining your Deployment
--------------------------
 
 Ephemeral Azure accounts don't have access to the Azure Portal, but you can
 still use the Azure CLI to see what has been deployed in your tenant:
