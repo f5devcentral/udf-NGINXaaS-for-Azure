@@ -229,6 +229,7 @@ still use the Azure CLI to see what has been deployed in your tenant:
 ```bash
 az resource list --output table
 ```
+
 <details>
   <summary>Example output</summary>
 
@@ -243,6 +244,7 @@ example-nginx-9b7965b3fb  cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe  wes
 example-nginx-9b7965b3fb  cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe  westus2     Microsoft.Network/virtualNetworks
 example-nginx-9b7965b3fb  cloudaccount-44483ae0-9e21-4f09-8a49-3a558eace4fe  westus2     Nginx.NginxPlus/nginxDeployments
 ```
+
 </details>
 
 ### Show the NGINXaaS deployment
@@ -252,6 +254,7 @@ az nginx deployment show \
     --resource-group $TF_VAR_resource_group_name \
     --deployment-name <NGINXaaS Deployment Name from TF output>
 ```
+
 <details>
   <summary>Example output</summary>
 
@@ -308,6 +311,7 @@ $ az nginx deployment show  --resource-group $TF_VAR_resource_group_name --deplo
   "type": "nginx.nginxplus/nginxdeployments"
 }
 ```
+
 </details>
 
 ### Show the default NGINX configuration
@@ -318,6 +322,7 @@ az nginx deployment configuration show \
     --deployment-name <NGINXaaS Deployment Name from TF output> \
     --name default
 ```
+
 <details>
   <summary>Example output</summary>
 
@@ -345,6 +350,7 @@ $ az nginx deployment configuration show --resource-group $TF_VAR_resource_group
   "type": "NGINX.NGINXPLUS/nginxDeployments/configurations"
 }
 ```
+
 </details>
 
 ## Known Issues
